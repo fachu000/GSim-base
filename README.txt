@@ -1,5 +1,11 @@
 
 
+==========================  GSim v1 ===================================
+
+GSim is a MATLAB environment to run simulations and real-data experiments.
+
+The documentation is in a pdf file in this folder.
+
 The first time you want to run a simulation after downloading the
 code, execute
 
