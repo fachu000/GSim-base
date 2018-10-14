@@ -1,6 +1,8 @@
 
 
-==========================  GSim v1 ===================================
+==========================  GSim ======================================
+
+Version: v1.
 
 GSim is a MATLAB environment to run simulations and real-data experiments.
 
