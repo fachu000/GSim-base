@@ -42,9 +42,15 @@ classdef GFigure
 						   %                 Each element of the sequence 
 						   %                 can have subplots.
 		
-        m_multiplot;       % Matrix/vector of objects of class GFigure
+        m_multiplot;       % Matrix/vector/tensor of objects of class GFigure
 						   % If m_multiplot is not empyt, then m_X, m_Y and
 						   % m_Z should be empty
+						   % When ch_multiplotType == 'subplot', then a
+						   % subplot of size size(m_multiplot,1) x
+						   % size(m_multiplot,2) is created. If
+						   % size(m_multiplot,3) > 1, then multiple layers
+						   % are overlaped (hold on).
+						  
 		
 		
 		% Figure properties (disregarded in multiplot mode) ---------------
@@ -132,7 +138,7 @@ classdef GFigure
 		ch_plotType2D = 'plot'; 
 		                   % other possibilities: 'stem' and 'bar'
 		ch_plotType3D = 'imagesc'; 
-		                   % other possibilities: 'plot3','surf' 
+		                   % other possibilities: 'plot3','surf','stem3'
 		
 		ch_gridStyle = '--';
 		                   % style for the grid. Other values are '' and ':'
@@ -282,6 +288,7 @@ classdef GFigure
 						for row = 1:nrows
 							for col = 1:ncols
 								subplot(nrows,ncols,(row-1)*ncols + col );
+								assert(isempty(F.m_multiplot(row,col,1).m_multiplot),'The m_multiplot property cannot contain GFigure objects with non-empty m_multiplot property. If you want to overlap multiple layers in each figure of the subplot, use the third dimension of m_multiplot.')
 								plotAxis(F.m_multiplot(row,col,:));
 							end
 						end
@@ -325,16 +332,24 @@ classdef GFigure
 		end
 			
 		function plotAxis(F)
-			% representation of the curves
-			assert(numel(F)==1)
-			F = F.translateAxis;
+			
+			assert(size(F,1)==1);
+			assert(size(F,2)==1);
+			
+			% representation of the curves			
+			for ind_layer = 1:size(F,3)
+				% String translation
+				F(1,1,ind_layer) = F(1,1,ind_layer).translateAxis;
 
-			% Actual representation
-			if isempty(F(1,1,1).m_Z)
-				plotAxis_2D(F);
-			else
-				plotAxis_3D(F);
+				% Actual representation
+				if isempty(F(1,1,ind_layer).m_Z)
+					plotAxis_2D(F(1,1,ind_layer));
+				else
+					plotAxis_3D(F(1,1,ind_layer));
+				end
+				hold on
 			end
+			hold off
 			
 			% axis limits
 			if ~isempty(F(1,1,1).v_xlim)
@@ -476,6 +491,8 @@ classdef GFigure
 					colormap(gcf,jet(100));
 				case 'surf'
 					surf(F.m_X,F.m_Y,F.m_Z);					
+				case 'stem3'
+					stem3(F.m_X,F.m_Y,F.m_Z,F.c_styles{1});									
 				case 'plot3'
 					plot3(F.m_X,F.m_Y,F.m_Z,F.c_styles{1},'LineWidth',2);
 			end
